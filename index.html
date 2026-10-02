@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>711 Personal OS 2.0 — ULTRA</title>
+<title>Personal OS 2.0 — Ультра</title>
 <style>
 :root{--bg:#000000;--glass:#0b0b0ddd;--glass2:#111113ee;--text:#f5f5f7;--muted:#98989f;--line:#ffffff12;--blue:#0a84ff;--cyan:#64d2ff;--green:#30d158;--orange:#ff9f0a;--red:#ff453a;--purple:#bf5af2;--shadow:0 28px 80px #000b}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,Arial,sans-serif;background:radial-gradient(circle at 8% -5%,#ffffff07,transparent 18%),radial-gradient(circle at 92% 0,#0a84ff0b,transparent 22%),radial-gradient(circle at 50% 110%,#6b35a008,transparent 28%),var(--bg);min-height:100vh}
@@ -583,6 +583,62 @@ body.pos-focus-mode .page#focus{
     scroll-behavior:auto!important;
   }
 }
+
+/* ===== PERSONAL OS AI HUB + NAV FIX ===== */
+.ai-hub{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.ai-tool{position:relative;overflow:hidden;padding:18px;border-radius:22px;border:1px solid rgba(255,255,255,.075);background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);cursor:pointer;transition:transform .35s cubic-bezier(.18,.9,.22,1.1),border-color .3s,box-shadow .3s}
+.ai-tool:hover{transform:translateY(-4px);border-color:rgba(138,180,255,.25);box-shadow:0 22px 55px rgba(0,0,0,.25)}
+.ai-icon{font-size:25px;margin-bottom:12px}.ai-title{font-weight:750}.ai-desc{font-size:11px;opacity:.48;margin-top:5px;line-height:1.45}
+.ai-tool.active{border-color:rgba(138,180,255,.35);box-shadow:0 0 35px rgba(138,180,255,.08)}
+.ai-workspace{margin-top:15px;padding:18px;border-radius:24px;border:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.028);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.ai-workspace textarea{width:100%;min-height:150px;box-sizing:border-box;resize:vertical;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.075);border-radius:17px;color:inherit;padding:14px;outline:0}
+.ai-output{margin-top:12px;min-height:90px;padding:14px;border-radius:17px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.055);white-space:pre-wrap;line-height:1.55;font-size:13px}
+.ai-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ai-chip{padding:8px 11px;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);font-size:11px;cursor:pointer}
+.ai-note{font-size:11px;opacity:.42;margin-top:9px}
+@media(max-width:850px){.ai-hub{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.ai-hub{grid-template-columns:1fr}}
+
+/* Navigation text/tooltips must never remain stuck */
+.pos-nav-label,.nav-tooltip,.bottom-nav .tooltip,[data-nav-label]{pointer-events:none}
+.pos-nav-label{opacity:0;transition:opacity .18s ease}
+button:hover .pos-nav-label{opacity:1}
+
+/* Make stale helper text impossible to linger */
+.pos-transient{animation:posTransientIn .25s ease both}
+@keyframes posTransientIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ===== GLOBAL UI CLEANUP / NO STUCK TEXT ===== */
+.pos-auto-fade{animation:posAutoFade .24s ease both}
+@keyframes posAutoFade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.pos-hidden{display:none!important}
+
+/* FINAL TOAST FIX — visible only while active, then fades out and is removed */
+.toast{
+  opacity:0 !important;
+  transform:translate(-50%,14px) scale(.96) !important;
+  pointer-events:none !important;
+  animation:none !important;
+}
+.toast.show{
+  opacity:1 !important;
+  transform:translate(-50%,0) scale(1) !important;
+  animation:posToastInFinal .28s cubic-bezier(.2,.8,.2,1) both !important;
+}
+.toast.hide{
+  opacity:0 !important;
+  transform:translate(-50%,10px) scale(.97) !important;
+  animation:posToastOutFinal .22s ease both !important;
+}
+@keyframes posToastInFinal{
+  from{opacity:0;transform:translate(-50%,14px) scale(.96)}
+  to{opacity:1;transform:translate(-50%,0) scale(1)}
+}
+@keyframes posToastOutFinal{
+  from{opacity:1;transform:translate(-50%,0) scale(1)}
+  to{opacity:0;transform:translate(-50%,10px) scale(.97)}
+}
+
 </style>
 </head>
 <body>
@@ -804,7 +860,23 @@ function calendar(){let days=['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'];
 function chart(){let vals=[58,71,64,82,77,91,84];q('#chart').innerHTML=vals.map(v=>`<div class="bar" style="height:${v}%"></div>`).join('')}
 function timerText(){return String(Math.floor(timer/60)).padStart(2,'0')+':'+String(timer%60).padStart(2,'0')}
 function toggleTimer(){running=!running;q('#timerBtn').textContent=running?'Ⅱ':'▶';q('#focusStatus').textContent=running?'Глубокий фокус…':'Пауза';clearInterval(interval);if(running)interval=setInterval(()=>{timer--;if(timer<=0){timer=300;running=false;focusMin+=25;clearInterval(interval);toast('Сессия фокуса завершена 🎉')}q('#timer').textContent=timerText()},1000)}
-function toast(t){let x=q('#toast');x.textContent=t;x.classList.add('show');clearTimeout(window._t);window._t=setTimeout(()=>x.classList.remove('show'),1800)}
+function toast(t){
+  const x=q('#toast');
+  if(!x)return;
+  clearTimeout(window._t);
+  clearTimeout(window._toastRemove);
+  x.classList.remove('hide');
+  x.textContent=t;
+  x.classList.add('show');
+  window._t=setTimeout(()=>{
+    x.classList.remove('show');
+    x.classList.add('hide');
+    window._toastRemove=setTimeout(()=>{
+      x.classList.remove('hide');
+      x.textContent='';
+    },260);
+  },1800);
+}
 function tick(){let d=new Date();q('#time').textContent=d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});q('#date').textContent=d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});q('#greeting').textContent=d.getHours()<6?'Доброй ночи.':d.getHours()<12?'Доброе утро.':d.getHours()<18?'Добрый день.':'Добрый вечер.'}
 setInterval(tick,1000);tick();render();
 
@@ -1349,6 +1421,214 @@ setTimeout(posMotionNumbers,200);
     if(card && !card.contains(e.relatedTarget))card.style.transform='';
   });
 })();
+
+/* ===== AI HUB LOCAL INTELLIGENCE ===== */
+let aiMode='ask';
+const aiNames={brief:'AI Brief',plan:'AI Planner',priorities:'Priority AI',goals:'Goal Coach',habits:'Habit Coach',finance:'Finance AI',notes:'Note AI',focus:'Focus AI',ask:'AI Assistant'};
+function aiSelect(mode,el){
+  aiMode=mode;
+  document.querySelectorAll('.ai-tool').forEach(x=>x.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const title=document.getElementById('aiWorkspaceTitle');
+  const input=document.getElementById('aiInput');
+  if(title)title.innerHTML='<b>'+aiNames[mode]+'</b>';
+  if(input){
+    const placeholders={
+      brief:'Например: что происходит с моим днём?',
+      plan:'Добавь контекст, если нужно…',
+      priorities:'Какие задачи сейчас важнее?',
+      goals:'Какая цель требует внимания?',
+      habits:'Проанализируй мои привычки…',
+      finance:'Что происходит с моими расходами?',
+      notes:'Вставь заметку для структурирования…',
+      focus:'На чём мне сфокусироваться?',
+      ask:'Напиши любой запрос…'
+    };
+    input.placeholder=placeholders[mode]||'Напиши запрос…';
+    if(['brief','plan','priorities','goals','habits','finance','focus'].includes(mode))input.value='';
+  }
+}
+function aiQuick(text){const i=document.getElementById('aiInput');if(i){i.value=text;i.focus()}}
+function aiRun(){
+  const out=document.getElementById('aiOutput'); if(!out)return;
+  out.classList.remove('pos-success');void out.offsetWidth;
+  out.textContent='Анализирую…';
+  setTimeout(()=>{
+    out.textContent=aiGenerate(aiMode,document.getElementById('aiInput')?.value||'');
+    out.classList.add('pos-success');
+  },280);
+}
+function aiGenerate(mode,input){
+  const ts=Array.isArray(tasks)?tasks:[];
+  const pending=ts.filter(t=>!t.done);
+  const done=ts.filter(t=>t.done);
+  if(mode==='brief'){
+    const urgent=pending.slice().sort((a,b)=>Number(b.score||b.priorityScore||0)-Number(a.score||a.priorityScore||0)).slice(0,3);
+    return `Сегодня: ${done.length} выполнено, ${pending.length} осталось.\n\nФокус:\n${urgent.length?urgent.map((t,i)=>`${i+1}. ${t.title||t.name||t.text}`).join('\\n'):'Нет незавершённых задач.'}\n\nРекомендация: выбери одну задачу и доведи её до результата.`;
+  }
+  if(mode==='plan'){
+    const list=pending.slice(0,7);
+    return `ПЛАН ДНЯ\n\n${list.length?list.map((t,i)=>`${i+1}. ${t.title||t.name||t.text}`).join('\\n'):'Все задачи закрыты 🎉'}\n\nСледующий шаг: запусти Auto Plan в Smart Calendar.`;
+  }
+  if(mode==='priorities'){
+    const list=pending.slice().sort((a,b)=>Number(b.score||b.priorityScore||0)-Number(a.score||a.priorityScore||0)).slice(0,5);
+    return list.length?`ТОП ПРИОРИТЕТЫ\n\n${list.map((t,i)=>`${i+1}. ${t.title||t.name||t.text}`).join('\\n')}`:'Приоритетных незавершённых задач нет.';
+  }
+  if(mode==='goals'){
+    const gs=typeof goals!=='undefined'&&Array.isArray(goals)?goals:[];
+    return gs.length?`ЦЕЛИ\n\n${gs.map(g=>`• ${g.title||g.name||'Цель'} — ${Number(g.progress||0)}%`).join('\\n')}`:'Пока нет целей.';
+  }
+  if(mode==='habits'){
+    const hs=typeof habits!=='undefined'&&Array.isArray(habits)?habits:[];
+    return hs.length?`ПРИВЫЧКИ\n\nВсего: ${hs.length}\n${hs.map(h=>`• ${h.title||h.name||'Привычка'}${h.done?' ✓':''}`).join('\\n')}`:'Пока нет привычек.';
+  }
+  if(mode==='finance'){
+    return 'ФИНАНСЫ\\n\\nОткрой раздел «Финансы» для полного анализа операций, категорий и баланса.';
+  }
+  if(mode==='notes'){
+    return input?`СТРУКТУРА ЗАМЕТКИ\n\n${input.split(/\\n+/).filter(Boolean).map((x,i)=>`${i+1}. ${x.trim()}`).join('\\n')}`:'Вставь текст заметки.';
+  }
+  if(mode==='focus'){
+    const t=pending[0];
+    return t?`FOCUS PICK\n\n${t.title||t.name||t.text}\n\nУбери лишние уведомления и работай над одной задачей 25 минут.`:'Нет задачи для фокуса.';
+  }
+  return input||'Напиши запрос в поле выше.';
+}
+
+/* ===== NAV TEXT / STALE OVERLAY FIX ===== */
+function posClearTransientUI(){
+  document.querySelectorAll('.pos-transient,.nav-tooltip,.bottom-nav .tooltip,[data-nav-label]').forEach(el=>{
+    if(!el.closest('.page-head,.page,.modal,.ai-workspace'))el.remove();
+    else if(el.classList.contains('pos-transient'))el.classList.remove('pos-transient');
+  });
+  document.querySelectorAll('[data-nav-label]').forEach(el=>el.style.removeProperty('display'));
+}
+document.addEventListener('click',e=>{
+  const nav=e.target.closest('nav, .bottom-nav, .nav, [class*="bottom"]');
+  if(nav){setTimeout(posClearTransientUI,80)}
+});
+const posNavPageOriginal=window.page;
+window.page=function(name){
+  if(typeof posNavPageOriginal==='function')posNavPageOriginal(name);
+  setTimeout(posClearTransientUI,90);
+};
+window.addEventListener('hashchange',()=>setTimeout(posClearTransientUI,50));
+setTimeout(posClearTransientUI,300);
+
+/* =========================================================
+   GLOBAL UI STATE MANAGER
+   Prevents stale labels, helper text, tooltips and overlays
+   from surviving navigation/clicks.
+   ========================================================= */
+(function(){
+  const POS_UI_SELECTORS=[
+    '.nav-tooltip','.bottom-nav .tooltip','.tooltip',
+    '[data-tooltip-popup]','.pos-transient',
+    '.toast-message','.toast-container',
+    '.copy-feedback','.success-message',
+    '.floating-label','.helper-popup'
+  ];
+
+  function isPersistent(el){
+    if(!el)return true;
+    return !!el.closest('.modal,.modal-bg,.page,.ai-workspace');
+  }
+
+  window.posCleanupTransient=function(){
+    POS_UI_SELECTORS.forEach(sel=>{
+      document.querySelectorAll(sel).forEach(el=>{
+        if(!isPersistent(el)) el.remove();
+      });
+    });
+
+    // Remove accidental standalone text nodes/elements generated by nav systems.
+    document.querySelectorAll('[data-nav-label],[data-tooltip-label]').forEach(el=>{
+      if(!el.closest('.page-head,.page,.modal,.ai-workspace')) el.remove();
+    });
+
+    // Close any stale command palette after navigation.
+    const cp=document.getElementById('commandPalette');
+    if(cp && !document.activeElement?.closest('#commandPalette')) cp.classList.remove('open');
+  };
+
+  // Any click outside a modal/palette clears transient UI shortly after.
+  document.addEventListener('click',()=>{
+    setTimeout(posCleanupTransient,120);
+  },true);
+
+  // Escape always closes transient UI, overlays and modals where possible.
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape')return;
+    const cp=document.getElementById('commandPalette');
+    if(cp)cp.classList.remove('open');
+
+    document.querySelectorAll('.modal-bg.open,.modal-bg[style*="flex"],.modal-bg[style*="block"]').forEach(el=>{
+      if(typeof window.closeModal==='function'){
+        try{window.closeModal()}catch(_){}
+      }
+    });
+    setTimeout(posCleanupTransient,30);
+  },true);
+
+  // Patch page navigation once, regardless of which previous wrappers exist.
+  const oldPage=window.page;
+  if(typeof oldPage==='function' && !window._posGlobalPageCleanup){
+    window.page=function(name){
+      const result=oldPage.apply(this,arguments);
+      setTimeout(posCleanupTransient,40);
+      setTimeout(posCleanupTransient,220);
+      return result;
+    };
+    window._posGlobalPageCleanup=true;
+  }
+
+  // MutationObserver catches dynamically inserted tooltip/text elements.
+  const observer=new MutationObserver(mutations=>{
+    let changed=false;
+    mutations.forEach(m=>{
+      if(m.addedNodes?.length)changed=true;
+    });
+    if(changed) setTimeout(posCleanupTransient,80);
+  });
+  observer.observe(document.body,{childList:true,subtree:true});
+
+  window.addEventListener('popstate',()=>setTimeout(posCleanupTransient,50));
+  window.addEventListener('hashchange',()=>setTimeout(posCleanupTransient,50));
+  setTimeout(posCleanupTransient,300);
+})();
+
+/* Universal temporary status message — always self-removes. */
+window.posFlash=function(text,duration=1800){
+  const old=document.getElementById('posFlash');
+  if(old)old.remove();
+  const el=document.createElement('div');
+  el.id='posFlash';
+  el.className='toast pos-auto-fade';
+  el.textContent=text;
+  el.style.cssText='position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:10000;pointer-events:none;';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),duration);
+};
+
+/* Fix click handlers that leave literal text from buttons/labels behind. */
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('button,[role="button"]');
+  if(!btn)return;
+  setTimeout(()=>{
+    // If a button contains a transient label, restore it to its normal state.
+    btn.querySelectorAll('.pos-transient,.nav-tooltip,.tooltip').forEach(x=>x.remove());
+    posCleanupTransient();
+  },350);
+},true);
+
+/* Bottom navigation: labels belong to buttons, never to the page layer. */
+document.querySelectorAll('nav,.bottom-nav,.nav').forEach(nav=>{
+  nav.querySelectorAll('span,label').forEach(el=>{
+    if(el.textContent.trim() && !el.classList.contains('nav-icon')){
+      el.style.transition='opacity .2s ease';
+    }
+  });
+});
 </script>
 <div id="financeModal" class="modal-bg">
 <div class="modal glass">
@@ -1367,5 +1647,7 @@ setTimeout(posMotionNumbers,200);
     <div id="commandResults" class="cmd-results"></div>
   </div>
 </div>
+
+</body></html>
 
 </body></html>
